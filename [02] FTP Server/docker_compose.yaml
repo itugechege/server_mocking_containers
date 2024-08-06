@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  ftp1:
+    image: fauria/vsftpd
+    container_name: ftp_server_1
+    ports:
+      - "21:21"
+      - "20:20"
+      - "30000-30009:30000-30009"
+    environment:
+      - FTP_USER=user
+      - FTP_PASS=pass
+      - PASV_ADDRESS=ftp.example.com
+      - PASV_PORT_MIN=30000
+      - PASV_PORT_MAX=30009
+      - FTP_BANNER=Welcome to the FTP server 1!
+    volumes:
+      - ./data:/home/vsftpd
+      - ./logs:/var/log/vsftpd
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  ftp2:
+    image: fauria/vsftpd
+    container_name: ftp_server_2
+    ports:
+      - "2121:21"
+      - "2020:20"
+      - "31000-31009:30000-30009"
+    environment:
+      - FTP_USER=user
+      - FTP_PASS=pass
+      - PASV_ADDRESS=ftp.example.com
+      - PASV_PORT_MIN=31000
+      - PASV_PORT_MAX=31009
+      - FTP_BANNER=Welcome to the FTP server 2!
+    volumes:
+      - ./data:/home/vsftpd
+      - ./logs:/var/log/vsftpd
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  ftp_load_balancer:
+    image: nginx:alpine
+    container_name: ftp_load_balancer
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - ftp1
+      - ftp2
+    restart: unless-stopped
+
+  backup:
+    image: alpine
+    container_name: ftp_backup
+    volumes:
+      - ./data:/data
+      - ./backups:/backups
+    entrypoint: ["/bin/sh", "-c", "crond -f"]
+    environment:
+      - BACKUP_INTERVAL=0 */6 * * *
+      - BACKUP_COMMAND='tar -czvf /backups/backup_$(date +%F_%T).tar.gz /data'
+
+volumes:
+  data:
+  backups:
+  logs:
+

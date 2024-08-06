@@ -1,0 +1,8 @@
+/ftp-server
+  ├── /data         # Directory to store FTP data
+  ├── /backups      # Directory to store backup files
+  ├── /logs         # Directory to store log files
+  ├── docker-compose.yml
+  ├── Dockerfile
+  └── README.md
+
