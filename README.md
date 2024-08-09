@@ -23,7 +23,12 @@ Below is the list of 50 large-scale containers that are planned to be developed 
 1. **HTTP Server**
    - Description: Mock HTTP server to test RESTful APIs.
 2. **FTP Server**
-   - Description: Mock FTP server for file transfer testing.
+The `ftp-server` project provides a scalable and highly available FTP solution using Docker. The setup includes:
+
+- **Multiple FTP Server Instances**: For redundancy and load balancing.
+- **Load Balancer**: Using Nginx to distribute incoming FTP requests across multiple servers.
+- **Backup Service**: Regular backups of FTP data to ensure data integrity and recovery.
+
 3. **SMTP Server**
    - Description: Mock SMTP server for email functionality testing.
 4. **IMAP Server**
