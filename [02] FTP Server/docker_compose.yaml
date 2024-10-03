@@ -32,8 +32,8 @@ services:
       - "2020:20"
       - "31000-31009:30000-30009"
     environment:
-      - FTP_USER=user
-      - FTP_PASS=pass
+      - FTP_USER=admin
+      - FTP_PASS=root
       - PASV_ADDRESS=ftp.example.com
       - PASV_PORT_MIN=31000
       - PASV_PORT_MAX=31009
