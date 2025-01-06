@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15 # Using the official PostgreSQL image version 15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata # Custom data location
+    ports:
+      - "5432:5432"  # Expose PostgreSQL to host for development access
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistent data storage
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro # Custom initialization scripts (development/test use)
+    networks:
+      - postgres_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 30s
+      retries: 3
+      start_period: 5s
+      timeout: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4 # Using the official pgAdmin image for UI
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: adminpassword
+    ports:
+      - "8080:80" # Expose pgAdmin to host for easy access via browser
+    networks:
+      - postgres_network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost/"]
+      interval: 30s
+      retries: 3
+      start_period: 5s
+      timeout: 10s
+
+networks:
+  postgres_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
